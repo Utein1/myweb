@@ -1,0 +1,10 @@
+# Next.js 构建产物带内容哈希，可以长期缓存
+/_next/static/*
+  Cache-Control: public,max-age=31536000,immutable
+
+# 公开图片
+/covers/*
+  Cache-Control: public,max-age=86400
+
+/icon.svg
+  Cache-Control: public,max-age=86400

@@ -1,0 +1,219 @@
+// 数据模型见 docs/PRD.md 第 7 章。
+// 部署目标为 Cloudflare Workers：运行期通过 @prisma/adapter-d1 连接 D1（SQLite 方言），
+// 本地 next dev 使用 wrangler 模拟的本地 D1（见 .wrangler/state）。
+// 连接串只给 CLI 使用，配置在 prisma.config.ts。
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  runtime             = "workerd"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model AdminUser {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  name           String?
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model SiteSetting {
+  id               String   @id
+  siteName         String   @default("冒险者档案")
+  tagline          String?
+  emblemUrl        String?
+  primaryColor     String   @default("#1F7F91")
+  defaultSeoTitle  String?
+  defaultSeoDesc   String?
+  defaultOgImageUrl String?
+  socialLinks      String   @default("[]")
+  footerText       String?
+  icpNumber        String?
+  resumeUrl        String?
+  rssMode          String   @default("SUMMARY")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Profile {
+  id              String   @id @default("main")
+  avatarUrl       String?
+  displayName     String
+  title           String?
+  className       String?
+  affiliation     String?
+  location        String?
+  headline        String?
+  bio             String?
+  yearsExperience Int?
+  email           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model TimelineEntry {
+  id           String   @id @default(cuid())
+  period       String
+  title        String
+  organization String?
+  description  String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+model SkillCategory {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  icon      String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  skills    Skill[]
+}
+
+model Skill {
+  id          String        @id @default(cuid())
+  categoryId  String
+  name        String
+  icon        String?
+  level       Int
+  years       Int?
+  description String?
+  learning    Boolean       @default(false)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  category    SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, sortOrder])
+}
+
+model Project {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  title       String
+  summary     String
+  content     String?
+  coverUrl    String?
+  role        String?
+  status      String         @default("PLANNED") // PLANNED | IN_PROGRESS | COMPLETED | ARCHIVED
+  featured    Boolean        @default(false)
+  sortOrder   Int            @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  demoUrl     String?
+  repoUrl     String?
+  seoTitle    String?
+  seoDesc     String?
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  images      ProjectImage[]
+  tags        ProjectTag[]
+
+  @@index([status, publishedAt])
+  @@index([featured, sortOrder])
+}
+
+model ProjectImage {
+  id        String   @id @default(cuid())
+  projectId String
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, sortOrder])
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  summary     String?
+  content     String
+  coverUrl    String?
+  status      String    @default("DRAFT") // DRAFT | PUBLISHED | SCHEDULED
+  pinned      Boolean   @default(false)
+  publishedAt DateTime?
+  seoTitle    String?
+  seoDesc     String?
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tags        PostTag[]
+
+  @@index([status, publishedAt])
+  @@index([pinned, publishedAt])
+}
+
+model Tag {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  slug      String       @unique
+  createdAt DateTime     @default(now())
+  posts     PostTag[]
+  projects  ProjectTag[]
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, tagId])
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  url       String
+  filename  String
+  mimeType  String
+  size      Int
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([filename])
+}
+
+model ContactMessage {
+  id        String    @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  ip        String?
+  userAgent String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([readAt])
+}

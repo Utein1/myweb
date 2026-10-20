@@ -1,0 +1,44 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "adventurer-ledger",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      // 自身 service binding，名字必须与 worker 名称一致（ISR / revalidate 用）
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "adventurer-ledger"
+    }
+  ],
+  "d1_databases": [
+    {
+      // 应用数据库（SQLite 方言，Prisma 通过 @prisma/adapter-d1 访问）
+      "binding": "DB",
+      "database_name": "adventurer-ledger-db",
+      "database_id": "ec229c79-d723-4cb7-8775-20b21e2eba83"
+    }
+  ],
+  "r2_buckets": [
+    {
+      // 上传的媒体文件
+      "binding": "MEDIA",
+      "bucket_name": "adventurer-ledger-media"
+    },
+    {
+      // Next.js ISR 增量缓存
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "adventurer-ledger-opennext-cache"
+    }
+  ],
+  "vars": {
+    "SITE_URL": "https://adventurer-ledger.example.workers.dev"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
