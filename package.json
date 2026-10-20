@@ -5,7 +5,7 @@
   "description": "冒险者档案 — 个人站与内容管理台",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && wrangler d1 execute adventurer-ledger-db --local --file=prisma/migrations/0001_init.sql && next build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",

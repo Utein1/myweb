@@ -48,13 +48,15 @@ npm run dev
 
 | 命令 | 说明 |
 | --- | --- |
-| `npm run dev` | 开发服务器 |
-| `npm run build` | 生产构建（含 `prisma generate`） |
-| `npm start` | 启动生产服务器 |
+| `npm run dev` | 开发服务器（本地 D1 由 wrangler 模拟） |
+| `npm run build` | 生产构建：`prisma generate` + 初始化本地 D1 表结构 + `next build` |
+| `npm run preview` | 本地以 Workers 运行时预览（OpenNext） |
+| `npm run deploy` | 构建并部署到 Cloudflare Workers |
+| `npm run upload` | 只上传版本，不切换线上流量 |
 | `npm run typecheck` | TypeScript 类型检查 |
-| `npm run setup` | 生成客户端 + 建表 + seed（本地首次启动） |
-| `npm run db:seed` | 重新写入示例内容（幂等，不会覆盖已有管理员） |
-| `npm run db:studio` | Prisma Studio 查看数据 |
+| `npm run cf-typegen` | 由 `wrangler.jsonc` 生成 `CloudflareEnv` 类型 |
+| `npm run db:local:init` / `db:local:seed` | 初始化 / 灌入本地 D1 示例数据 |
+| `npm run db:remote:init` / `db:remote:seed` | 初始化 / 灌入线上 D1 示例数据 |
 
 ## 目录结构
 
@@ -122,6 +124,20 @@ docs/PRD.md      产品需求文档
 ```
 
 Vercel Cron 或 Cloudflare Cron Trigger 均可调用；即使不配置 Cron，5 分钟兜底缓存也会让内容上线。
+
+## 部署到 Cloudflare Workers
+
+构建流程是 OpenNext：`next build` → `.open-next/worker.js` → `wrangler deploy`。首次部署按顺序做：
+
+1. **建好云端资源**：`wrangler.jsonc` 里的 D1 数据库（`adventurer-ledger-db`）、R2 桶（`adventurer-ledger-media`、`adventurer-ledger-opennext-cache`）必须先在账号里存在，`database_id` 要填真实值。
+2. **初始化线上表结构与数据**：`npm run db:remote:init`，需要示例内容再执行 `npm run db:remote:seed`。
+3. **设置运行时密钥**（`wrangler secret put <NAME>`）：`AUTH_SECRET`（≥32 字节随机串）、`CRON_SECRET`，以及按需的 `ADMIN_EMAIL` / `ADMIN_PASSWORD`。`SITE_URL` 写在 `wrangler.jsonc` 的 `vars` 里，改成正式域名。
+4. **接 Git 自动构建**（Workers Builds）时填：
+   - Build command：`npx opennextjs-cloudflare build`
+   - Deploy command：`npx wrangler deploy`
+   - 不需要配置 `DATABASE_URL`：`prisma generate` 只需要一个占位连接串，`prisma.config.ts` 在缺少该变量时会自动回退，因此构建阶段拿不到生产库也能通过。
+
+构建期的预渲染（首页、`/blog`、`/sitemap.xml` 等）会连到 CI 里的**空**本地 D1，所以 `npm run build` 会先执行一遍建表 SQL（幂等），让预渲染拿到合法但为空的数据；线上首次访问后再由 `revalidate` / `revalidateTag` 收敛成真实内容。部署完登录后台保存任意一项即可立即刷新前台缓存。
 
 ## 上线前检查
 

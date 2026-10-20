@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "AdminUser" (
+CREATE TABLE IF NOT EXISTS "AdminUser" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE "AdminUser" (
 );
 
 -- CreateTable
-CREATE TABLE "SiteSetting" (
+CREATE TABLE IF NOT EXISTS "SiteSetting" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "siteName" TEXT NOT NULL DEFAULT '冒险者档案',
     "tagline" TEXT,
@@ -31,7 +31,7 @@ CREATE TABLE "SiteSetting" (
 );
 
 -- CreateTable
-CREATE TABLE "Profile" (
+CREATE TABLE IF NOT EXISTS "Profile" (
     "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'main',
     "avatarUrl" TEXT,
     "displayName" TEXT NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE "Profile" (
 );
 
 -- CreateTable
-CREATE TABLE "TimelineEntry" (
+CREATE TABLE IF NOT EXISTS "TimelineEntry" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "period" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE "TimelineEntry" (
 );
 
 -- CreateTable
-CREATE TABLE "SkillCategory" (
+CREATE TABLE IF NOT EXISTS "SkillCategory" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE "SkillCategory" (
 );
 
 -- CreateTable
-CREATE TABLE "Skill" (
+CREATE TABLE IF NOT EXISTS "Skill" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "categoryId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE "Skill" (
 );
 
 -- CreateTable
-CREATE TABLE "Project" (
+CREATE TABLE IF NOT EXISTS "Project" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "slug" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE "Project" (
 );
 
 -- CreateTable
-CREATE TABLE "ProjectImage" (
+CREATE TABLE IF NOT EXISTS "ProjectImage" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "projectId" TEXT NOT NULL,
     "url" TEXT NOT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE "ProjectImage" (
 );
 
 -- CreateTable
-CREATE TABLE "Post" (
+CREATE TABLE IF NOT EXISTS "Post" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "slug" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -139,7 +139,7 @@ CREATE TABLE "Post" (
 );
 
 -- CreateTable
-CREATE TABLE "Tag" (
+CREATE TABLE IF NOT EXISTS "Tag" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE "Tag" (
 );
 
 -- CreateTable
-CREATE TABLE "PostTag" (
+CREATE TABLE IF NOT EXISTS "PostTag" (
     "postId" TEXT NOT NULL,
     "tagId" TEXT NOT NULL,
 
@@ -157,7 +157,7 @@ CREATE TABLE "PostTag" (
 );
 
 -- CreateTable
-CREATE TABLE "ProjectTag" (
+CREATE TABLE IF NOT EXISTS "ProjectTag" (
     "projectId" TEXT NOT NULL,
     "tagId" TEXT NOT NULL,
 
@@ -167,7 +167,7 @@ CREATE TABLE "ProjectTag" (
 );
 
 -- CreateTable
-CREATE TABLE "Media" (
+CREATE TABLE IF NOT EXISTS "Media" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "key" TEXT NOT NULL,
     "url" TEXT NOT NULL,
@@ -180,7 +180,7 @@ CREATE TABLE "Media" (
 );
 
 -- CreateTable
-CREATE TABLE "ContactMessage" (
+CREATE TABLE IF NOT EXISTS "ContactMessage" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -193,55 +193,55 @@ CREATE TABLE "ContactMessage" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AdminUser_email_key" ON "AdminUser"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "AdminUser_email_key" ON "AdminUser"("email");
 
 -- CreateIndex
-CREATE INDEX "TimelineEntry_sortOrder_idx" ON "TimelineEntry"("sortOrder");
+CREATE INDEX IF NOT EXISTS "TimelineEntry_sortOrder_idx" ON "TimelineEntry"("sortOrder");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "SkillCategory_slug_key" ON "SkillCategory"("slug");
+CREATE UNIQUE INDEX IF NOT EXISTS "SkillCategory_slug_key" ON "SkillCategory"("slug");
 
 -- CreateIndex
-CREATE INDEX "Skill_categoryId_sortOrder_idx" ON "Skill"("categoryId", "sortOrder");
+CREATE INDEX IF NOT EXISTS "Skill_categoryId_sortOrder_idx" ON "Skill"("categoryId", "sortOrder");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Project_slug_key" ON "Project"("slug");
+CREATE UNIQUE INDEX IF NOT EXISTS "Project_slug_key" ON "Project"("slug");
 
 -- CreateIndex
-CREATE INDEX "Project_status_publishedAt_idx" ON "Project"("status", "publishedAt");
+CREATE INDEX IF NOT EXISTS "Project_status_publishedAt_idx" ON "Project"("status", "publishedAt");
 
 -- CreateIndex
-CREATE INDEX "Project_featured_sortOrder_idx" ON "Project"("featured", "sortOrder");
+CREATE INDEX IF NOT EXISTS "Project_featured_sortOrder_idx" ON "Project"("featured", "sortOrder");
 
 -- CreateIndex
-CREATE INDEX "ProjectImage_projectId_sortOrder_idx" ON "ProjectImage"("projectId", "sortOrder");
+CREATE INDEX IF NOT EXISTS "ProjectImage_projectId_sortOrder_idx" ON "ProjectImage"("projectId", "sortOrder");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Post_slug_key" ON "Post"("slug");
+CREATE UNIQUE INDEX IF NOT EXISTS "Post_slug_key" ON "Post"("slug");
 
 -- CreateIndex
-CREATE INDEX "Post_status_publishedAt_idx" ON "Post"("status", "publishedAt");
+CREATE INDEX IF NOT EXISTS "Post_status_publishedAt_idx" ON "Post"("status", "publishedAt");
 
 -- CreateIndex
-CREATE INDEX "Post_pinned_publishedAt_idx" ON "Post"("pinned", "publishedAt");
+CREATE INDEX IF NOT EXISTS "Post_pinned_publishedAt_idx" ON "Post"("pinned", "publishedAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "Tag_name_key" ON "Tag"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Tag_slug_key" ON "Tag"("slug");
+CREATE UNIQUE INDEX IF NOT EXISTS "Tag_slug_key" ON "Tag"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Media_key_key" ON "Media"("key");
+CREATE UNIQUE INDEX IF NOT EXISTS "Media_key_key" ON "Media"("key");
 
 -- CreateIndex
-CREATE INDEX "Media_createdAt_idx" ON "Media"("createdAt");
+CREATE INDEX IF NOT EXISTS "Media_createdAt_idx" ON "Media"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "Media_filename_idx" ON "Media"("filename");
+CREATE INDEX IF NOT EXISTS "Media_filename_idx" ON "Media"("filename");
 
 -- CreateIndex
-CREATE INDEX "ContactMessage_createdAt_idx" ON "ContactMessage"("createdAt");
+CREATE INDEX IF NOT EXISTS "ContactMessage_createdAt_idx" ON "ContactMessage"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "ContactMessage_readAt_idx" ON "ContactMessage"("readAt");
+CREATE INDEX IF NOT EXISTS "ContactMessage_readAt_idx" ON "ContactMessage"("readAt");
